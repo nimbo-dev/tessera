@@ -6,6 +6,7 @@ import '../models/weekly_schedule.dart';
 import '../services/schedule_service.dart';
 import '../services/seneca_api.dart';
 import '../services/storage_service.dart';
+import '../services/update_service.dart';
 import '../utils/theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,6 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _lastFichajeMsg;
   List<FichajeRecord>? _recentFichajes;
   bool _loadingFichajes = true;
+  UpdateInfo? _update;
+  bool _downloading = false;
+  double _dlProgress = 0;
 
   static const _weekdays = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves',
       'Viernes', 'Sábado', 'Domingo'];
@@ -53,6 +57,35 @@ class _HomeScreenState extends State<HomeScreen> {
           WeeklySchedule(days: const {}, importedAt: DateTime.now()));
     }
     await _loadRecentFichajes();
+    await _checkUpdate();
+  }
+
+  Future<void> _checkUpdate() async {
+    try {
+      final u = await UpdateService.checkForUpdate();
+      if (mounted && u != null) setState(() => _update = u);
+    } catch (_) {
+      // sin conexión o sin releases publicadas: lo ignoramos
+    }
+  }
+
+  Future<void> _doUpdate() async {
+    final u = _update;
+    if (u == null) return;
+    setState(() { _downloading = true; _dlProgress = 0; });
+    try {
+      await UpdateService.downloadAndInstall(
+        u.apkUrl,
+        onProgress: (p) { if (mounted) setState(() => _dlProgress = p); },
+      );
+      // El instalador de Android toma el control a partir de aquí.
+    } catch (e) {
+      if (mounted) {
+        setState(() => _downloading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No se pudo actualizar: $e')));
+      }
+    }
   }
 
   Future<void> _loadRecentFichajes() async {
@@ -158,6 +191,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 8),
+                if (_update != null) ...[
+                  _buildUpdateBanner(),
+                  const SizedBox(height: 16),
+                ],
                 _buildStatusCard(),
                 const SizedBox(height: 20),
                 _buildTodayCard(),
@@ -205,6 +242,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppTheme.textSecondary, fontSize: 13)),
       ],
     ),
+  );
+
+  // ── Banner de actualización ───────────────────────────────────────────────
+
+  Widget _buildUpdateBanner() => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppTheme.accent.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: AppTheme.accent.withValues(alpha: 0.4)),
+    ),
+    child: Row(children: [
+      Icon(Icons.system_update_rounded, color: AppTheme.accent),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Actualización disponible',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+            Text('Versión ${_update!.version}',
+                style: const TextStyle(fontSize: 12)),
+          ],
+        ),
+      ),
+      _downloading
+          ? SizedBox(
+              width: 30, height: 30,
+              child: CircularProgressIndicator(
+                  value: _dlProgress > 0 ? _dlProgress : null,
+                  strokeWidth: 3,
+                  color: AppTheme.accent))
+          : TextButton(onPressed: _doUpdate, child: const Text('Actualizar')),
+    ]),
   );
 
   // ── Tarjeta estado on/off ─────────────────────────────────────────────────

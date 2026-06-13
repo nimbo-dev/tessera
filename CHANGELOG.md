@@ -6,9 +6,9 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
-## [1.0.0]
+## [0.1.0]
 
-Primera versión pública.
+Primera versión (en pruebas).
 
 ### Añadido
 - Fichaje automático de entrada y salida según el horario de Séneca.
@@ -18,3 +18,4 @@ Primera versión pública.
 - Modo periodo no lectivo (horario fijo de L a V).
 - Tema claro / oscuro / automático.
 - Re-login automático ante expiración del token (401).
+- Actualizaciones in-app desde GitHub Releases.

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/app_config.dart';
 import '../models/weekly_schedule.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../services/schedule_service.dart';
 import '../services/storage_service.dart';
+import '../services/update_service.dart';
 import '../utils/theme.dart';
 import 'setup_screen.dart';
 
@@ -18,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   AppConfig? _config;
   WeeklySchedule? _weekly;
   String? _username;
+  String _appVersion = '';
   bool _loading = true;
   bool _importing = false;
 
@@ -31,10 +34,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final c = await StorageService.loadConfig();
     final w = await StorageService.loadWeeklySchedule();
     final creds = await StorageService.loadCredentials();
+    final pkg = await PackageInfo.fromPlatform();
     setState(() {
       _config = c;
       _weekly = w;
       _username = creds['username'];
+      _appVersion = pkg.version;
       _loading = false;
     });
   }
@@ -150,6 +155,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _checkUpdatesManually() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Buscando actualizaciones…')));
+    try {
+      final u = await UpdateService.checkForUpdate();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(u == null
+            ? 'Estás en la última versión.'
+            : 'Disponible la versión ${u.version}. Ve a Inicio para actualizar.'),
+      ));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('No se pudo comprobar (¿sin conexión?).')));
+    }
   }
 
   Future<void> _resetCredentials() async {
@@ -325,10 +350,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.info_outline_rounded,
                     iconColor: AppTheme.textSecondary,
                     label: 'Tessera',
-                    trailing: Text('1.0.0',
+                    trailing: Text(_appVersion.isEmpty ? '' : 'v$_appVersion',
                         style: TextStyle(
                             color: AppTheme.textSecondary, fontSize: 14)),
                     onTap: null,
+                  ),
+                  _buildDivider(),
+                  _buildActionRow(
+                    icon: Icons.system_update_rounded,
+                    iconColor: AppTheme.textSecondary,
+                    label: 'Buscar actualizaciones',
+                    onTap: _checkUpdatesManually,
                   ),
                 ]),
 
