@@ -1,0 +1,13 @@
+# Plantilla de configuración de firma para releases.
+#
+# 1. Copia este archivo a `key.properties` (en esta misma carpeta).
+# 2. Rellena los valores con los de TU keystore.
+# 3. NO subas `key.properties` ni el `.jks` al repositorio (están en .gitignore).
+#
+# Si no existe `key.properties`, la app se compila firmada con la clave de
+# depuración (válida para probar en tu móvil, no para publicar).
+
+storePassword=TU_CONTRASEÑA_DEL_KEYSTORE
+keyPassword=TU_CONTRASEÑA_DE_LA_CLAVE
+keyAlias=tu_alias
+storeFile=/ruta/absoluta/a/tu/tessera-release.jks

@@ -1,0 +1,40 @@
+# ─────────────── Secretos de firma (NUNCA subir) ───────────────
+*.jks
+*.keystore
+**/key.properties
+
+# ─────────────── Binarios / artefactos / terceros ───────────────
+*.apk
+*.aab
+*.xapk
+
+# ─────────────── Flutter / Dart ───────────────
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/build/
+**/doc/api/
+
+# ─────────────── Android ───────────────
+**/local.properties
+**/.gradle/
+**/.cxx/
+**/captures/
+**/GeneratedPluginRegistrant.*
+
+# ─────────────── Carpeta de desarrollo interno (no publicar) ───────────────
+development/
+
+# ─────────────── Sistema / IDE ───────────────
+.DS_Store
+**/.DS_Store
+.idea/
+*.iml
+.vscode/
+
+# ─────────────── Python (utilidades de desarrollo) ───────────────
+__pycache__/
+*.pyc
+.venv/
+venv/
