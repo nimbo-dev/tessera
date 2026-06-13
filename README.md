@@ -43,8 +43,27 @@ No necesitas volver a abrir la app.
 
 ### Instalar el APK
 1. Descarga el APK (`tessera-vX.Y.Z.apk`) desde la sección **[Releases](../../releases)**.
-2. Ábrelo en el móvil; permite la instalación de fuentes desconocidas si te lo pide.
-3. Instala y abre.
+2. Ábrelo en el móvil (desde la notificación de descarga o desde la carpeta *Descargas*).
+3. Android te pedirá **permitir instalar apps de esta fuente** (tu navegador o gestor de archivos): actívalo y vuelve atrás.
+4. Pulsa **Instalar** y, al terminar, abre la app.
+
+> ⚠️ **Vas a ver avisos de seguridad. Es normal y no significa que la app sea peligrosa.**
+> Como Tessera **no se instala desde Google Play** (mantenerla anónima y fuera de la Play Store es deliberado), Android te avisará. Esto es lo que verás y qué hacer:
+>
+> | Aviso | Qué hacer |
+> |---|---|
+> | **"Por tu seguridad, el teléfono no puede instalar apps de esta fuente"** | Toca **Ajustes** → activa **Permitir de esta fuente** → vuelve atrás. |
+> | **Play Protect: "App no segura"** o **"¿Quieres analizar la app?"** | Toca **Instalar de todos modos** (o **No analizar**). Play Protect marca así toda app que no viene de la Play Store, no es que haya detectado nada. |
+> | **Xiaomi / MIUI / Redmi:** análisis extra, cuenta atrás de 10 s, "Instalación bloqueada" | Espera la cuenta atrás y pulsa **Instalar de todos modos**. Si lo bloquea del todo, desactiva *Ajustes → Protección de privacidad → Analizar apps antes de instalar*. |
+>
+> Si quieres verificar tú mismo lo que instalas: el código es público en este repositorio y cada APK se compila de forma automática y firmada por [GitHub Actions](.github/workflows/release.yml), no a mano.
+
+### Actualizar la app
+Tessera **te avisa sola** cuando hay una versión nueva: aparece un banner en la pantalla de **Inicio** (o pulsa **Ajustes → Buscar actualizaciones**). Al aceptar, descarga el nuevo APK y lanza la instalación.
+
+> ⚠️ Al actualizar **volverán a salir los mismos avisos de seguridad** del paso anterior (fuente desconocida, Play Protect, MIUI). Es lo normal: respóndelos igual (**Instalar de todos modos**). La sesión y tu configuración **se conservan**; no tendrás que volver a iniciar sesión ni a meter el SMS.
+>
+> Tessera se actualiza **sobre la versión instalada** porque todas las releases van firmadas con la misma clave. No desinstales la versión anterior: si lo haces, perderás la sesión guardada.
 
 ### Permisos que solicita
 | Permiso | Para qué |
@@ -53,6 +72,7 @@ No necesitas volver a abrir la app.
 | Alarmas exactas | Fichar a la hora justa aunque el teléfono esté en reposo |
 | Notificaciones | Confirmar que el fichaje se registró |
 | Inicio automático | Reprogramar las alarmas tras reiniciar el teléfono |
+| Instalar apps | Aplicar las actualizaciones dentro de la propia app |
 
 > **Batería:** para que los fichajes salgan a su hora, excluye Tessera de la optimización de batería (Ajustes → Batería → Tessera → No optimizar).
 
@@ -87,6 +107,9 @@ Sí. La contraseña y el token se guardan en el Keystore cifrado de Android (`fl
 
 **¿Por qué solo pide el SMS una vez?**
 Al verificarlo, Séneca devuelve un token de dispositivo de confianza de larga duración; los accesos siguientes lo usan para entrar sin SMS.
+
+**Al instalar/actualizar me salen avisos de "app no segura". ¿Es peligrosa?**
+No. Son los avisos que Android y Play Protect muestran con **cualquier** app que no venga de la Play Store; no es una detección real. Tessera está fuera de la Play Store a propósito (anonimato). Pulsa **Instalar de todos modos**. Ver [Instalación](#instalación) para el detalle por marca (incluido Xiaomi/MIUI).
 
 ---
 
