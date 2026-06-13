@@ -1,3 +1,7 @@
+# ─────────────── Otros proyectos colocados aquí por error ───────────────
+# (Nexo se copió dentro por error; contiene datos personales — NUNCA subir)
+/Nexo/
+
 # ─────────────── Secretos de firma (NUNCA subir) ───────────────
 *.jks
 *.keystore
