@@ -53,8 +53,11 @@ jobs:
       - name: Compilar APK firmado
         run: flutter build apk --release
 
+      - name: Renombrar el APK con la versión
+        run: cp build/app/outputs/flutter-apk/app-release.apk "tessera-${{ github.ref_name }}.apk"
+
       - name: Publicar la release con el APK
         uses: softprops/action-gh-release@v2
         with:
-          files: build/app/outputs/flutter-apk/app-release.apk
+          files: tessera-${{ github.ref_name }}.apk
           generate_release_notes: true

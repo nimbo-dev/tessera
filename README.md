@@ -38,7 +38,7 @@ No necesitas volver a abrir la app.
 - Conexión a internet en el momento del fichaje.
 
 ### Instalar el APK
-1. Descarga el `tessera.apk` desde la sección **[Releases](../../releases)**.
+1. Descarga el APK (`tessera-vX.Y.Z.apk`) desde la sección **[Releases](../../releases)**.
 2. Ábrelo en el móvil; permite la instalación de fuentes desconocidas si te lo pide.
 3. Instala y abre.
 
