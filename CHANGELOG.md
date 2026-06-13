@@ -6,6 +6,11 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.2.0]
+
+Versión de prueba para validar la actualización automática in-app. Sin cambios
+funcionales respecto a 0.1.0.
+
 ## [0.1.0]
 
 Primera versión (en pruebas).

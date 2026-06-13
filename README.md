@@ -1,5 +1,9 @@
 # Tessera
 
+[![Release](https://img.shields.io/github/v/release/nimbo-dev/tessera)](https://github.com/nimbo-dev/tessera/releases)
+[![Descargas](https://img.shields.io/github/downloads/nimbo-dev/tessera/total)](https://github.com/nimbo-dev/tessera/releases)
+[![Licencia](https://img.shields.io/github/license/nimbo-dev/tessera)](LICENSE)
+
 Tessera es una app que automatiza el control de presencia en Séneca para el profesorado andaluz. Registra tu entrada y salida cada día lectivo según tu horario, sin necesidad de abrir la aplicación, también cuando trabajas fuera del centro, como en las visitas de FP Dual.
 
 > *Disponible para Android. Versión para iOS en desarrollo*. Aplicación no oficial, sin afiliación con la Junta de Andalucía ni con el proyecto Séneca.
