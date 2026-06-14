@@ -139,6 +139,23 @@ class AppTheme {
                 ? accent.withValues(alpha: 0.4)
                 : Colors.grey.withValues(alpha: 0.2)),
       ),
+      // La barra de navegación toma sus colores del tema (no de los getters
+      // estáticos), para que cambie de color al instante y animado al alternar
+      // claro/oscuro, en vez de quedarse con el color anterior.
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surf,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: accent.withValues(alpha: 0.18),
+        elevation: 0,
+        labelTextStyle: WidgetStateProperty.resolveWith((s) => TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: s.contains(WidgetState.selected) ? accent : txt2,
+            )),
+        iconTheme: WidgetStateProperty.resolveWith((s) => IconThemeData(
+              color: s.contains(WidgetState.selected) ? accent : txt2,
+            )),
+      ),
       dividerColor: hairline,
     );
   }

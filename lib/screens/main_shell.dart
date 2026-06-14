@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/theme.dart';
 import 'home_screen.dart';
 import 'historial_screen.dart';
 import 'settings_screen.dart';
@@ -32,36 +31,29 @@ class _MainShellState extends State<MainShell> {
 
     return Scaffold(
       body: IndexedStack(index: _index, children: tabs),
-      // La barra escucha al themeNotifier para repintarse al instante cuando
-      // se cambia claro/oscuro; si no, conserva el color viejo hasta el
-      // siguiente setState (al cambiar de pestaña), porque sus colores salen
-      // de getters estáticos de AppTheme, no de un InheritedWidget.
-      bottomNavigationBar: ValueListenableBuilder<ThemeMode>(
-        valueListenable: themeNotifier,
-        builder: (context, _, __) => NavigationBar(
-          selectedIndex: _index,
-          onDestinationSelected: _goTo,
-          backgroundColor: AppTheme.surface,
-          indicatorColor: AppTheme.accent.withValues(alpha: 0.18),
-          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded, color: AppTheme.accent),
-              label: 'Inicio',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.history_outlined),
-              selectedIcon: Icon(Icons.history_rounded, color: AppTheme.accent),
-              label: 'Historial',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.settings_outlined),
-              selectedIcon: Icon(Icons.settings_rounded, color: AppTheme.accent),
-              label: 'Ajustes',
-            ),
-          ],
-        ),
+      // Los colores salen del navigationBarTheme del tema activo, así la barra
+      // se repinta sola (y animada) al cambiar claro/oscuro.
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _index,
+        onDestinationSelected: _goTo,
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded),
+            label: 'Inicio',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.history_outlined),
+            selectedIcon: Icon(Icons.history_rounded),
+            label: 'Historial',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings_rounded),
+            label: 'Ajustes',
+          ),
+        ],
       ),
     );
   }

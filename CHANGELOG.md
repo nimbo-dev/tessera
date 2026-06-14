@@ -6,6 +6,19 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.3.1]
+
+### Arreglado
+- La barra de navegación inferior ahora **sí** cambia de color al instante al
+  alternar claro/oscuro (en 0.3.0 el arreglo no llegaba a la raíz). Sus colores
+  salen del tema, por lo que se repintan de forma heredada y animada.
+- El historial y el panel del día del calendario se muestran en **orden
+  cronológico**: días de más reciente a más antiguo y, dentro de cada día, la
+  entrada antes que la salida (antes podían aparecer al revés).
+- "Últimos fichajes" de Inicio ya no muestra "Sin fichajes recientes" cuando en
+  realidad falló la carga: distingue el error (con opción de **Reintentar**) del
+  caso de no tener fichajes.
+
 ## [0.3.0]
 
 ### Añadido

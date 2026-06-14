@@ -156,7 +156,19 @@ class _HistorialScreenState extends State<HistorialScreen> {
   List<Object> get _rows {
     final out = <Object>[];
     String? lastKey;
-    for (final f in _filtered) {
+    // Días de más reciente a más antiguo; dentro de cada día, cronológico
+    // (entrada antes que salida), sea cual sea el orden que devuelva Séneca.
+    final sorted = [..._filtered]..sort((a, b) {
+      final da = a.date, db = b.date;
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      final dayA = DateTime(da.year, da.month, da.day);
+      final dayB = DateTime(db.year, db.month, db.day);
+      final byDay = dayB.compareTo(dayA);
+      return byDay != 0 ? byDay : da.compareTo(db);
+    });
+    for (final f in sorted) {
       final d = f.date;
       final key = d == null ? '—' : _key(d);
       if (key != lastKey) {
@@ -175,6 +187,10 @@ class _HistorialScreenState extends State<HistorialScreen> {
     for (final f in _items) {
       if (f.date == null) continue;
       m.putIfAbsent(_key(f.date!), () => []).add(f);
+    }
+    // Dentro de cada día, orden cronológico (entrada antes que salida).
+    for (final list in m.values) {
+      list.sort((a, b) => a.date!.compareTo(b.date!));
     }
     return m;
   }

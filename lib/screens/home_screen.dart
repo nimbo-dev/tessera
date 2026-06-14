@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _lastFichajeMsg;
   List<FichajeRecord>? _recentFichajes;
   bool _loadingFichajes = true;
+  bool _fichajesError = false;
   UpdateInfo? _update;
   bool _downloading = false;
   double _dlProgress = 0;
@@ -89,16 +90,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadRecentFichajes() async {
+    if (mounted) {
+      setState(() { _loadingFichajes = true; _fichajesError = false; });
+    }
     try {
       final list =
           await _withAuthRetry(() => SenecaApi.getHistorial(_token, page: 1));
       list.sort((a, b) =>
           (b.date ?? DateTime(0)).compareTo(a.date ?? DateTime(0)));
       if (mounted) {
-        setState(() { _recentFichajes = list; _loadingFichajes = false; });
+        setState(() {
+          _recentFichajes = list;
+          _loadingFichajes = false;
+          _fichajesError = false;
+        });
       }
-    } catch (_) {
-      if (mounted) setState(() => _loadingFichajes = false);
+    } catch (e) {
+      // No confundir "sin fichajes" con "no se pudo cargar": registramos el
+      // error y lo señalamos para ofrecer reintento.
+      debugPrint('Tessera: error cargando últimos fichajes: $e');
+      if (mounted) {
+        setState(() { _loadingFichajes = false; _fichajesError = true; });
+      }
     }
   }
 
@@ -450,6 +463,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: CircularProgressIndicator(
                     strokeWidth: 2, color: AppTheme.accent)),
           )
+        else if (_fichajesError)
+          Row(children: [
+            Expanded(
+              child: _chip(Icons.cloud_off_outlined,
+                  'No se pudieron cargar', AppTheme.textSecondary),
+            ),
+            TextButton(
+              onPressed: _loadRecentFichajes,
+              child: Text('Reintentar',
+                  style: TextStyle(color: AppTheme.accent)),
+            ),
+          ])
         else if (_recentFichajes == null || _recentFichajes!.isEmpty)
           _chip(Icons.history_toggle_off_outlined, 'Sin fichajes recientes',
               AppTheme.textSecondary)
