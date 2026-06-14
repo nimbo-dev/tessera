@@ -6,6 +6,14 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.3.2]
+
+### Cambiado
+- "Buscar actualizaciones" (Ajustes) ahora **actualiza en el sitio**: si hay
+  versión nueva, muestra un diálogo con las novedades y un botón **Actualizar**
+  que descarga e instala con barra de progreso. Antes te mandaba a Inicio, donde
+  el banner no aparecía hasta reiniciar la app.
+
 ## [0.3.1]
 
 ### Arreglado

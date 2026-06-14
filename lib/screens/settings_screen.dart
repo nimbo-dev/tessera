@@ -164,16 +164,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final u = await UpdateService.checkForUpdate();
       if (!mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(u == null
-            ? 'Estás en la última versión.'
-            : 'Disponible la versión ${u.version}. Ve a Inicio para actualizar.'),
-      ));
+      if (u == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Estás en la última versión.')));
+      } else {
+        await _promptAndUpdate(u);
+      }
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('No se pudo comprobar (¿sin conexión?).')));
+    }
+  }
+
+  /// Ofrece actualizar en el sitio (sin mandar al usuario a Inicio): muestra la
+  /// versión y las novedades y, si acepta, descarga e instala con progreso.
+  Future<void> _promptAndUpdate(UpdateInfo u) async {
+    final go = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Versión ${u.version} disponible'),
+        content: u.notes.trim().isEmpty
+            ? const Text('Hay una nueva versión de Tessera.')
+            : SingleChildScrollView(child: Text(u.notes.trim())),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Ahora no')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Actualizar')),
+        ],
+      ),
+    );
+    if (go != true || !mounted) return;
+
+    final progress = ValueNotifier<double>(0);
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Descargando actualización'),
+        content: ValueListenableBuilder<double>(
+          valueListenable: progress,
+          builder: (_, p, __) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: p > 0 ? p : null),
+              const SizedBox(height: 12),
+              Text(p > 0 ? '${(p * 100).round()} %' : 'Preparando…',
+                  style: TextStyle(color: AppTheme.textSecondary)),
+              const SizedBox(height: 4),
+              Text('Al terminar, Android pedirá confirmar la instalación.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 12)),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      await UpdateService.downloadAndInstall(
+        u.apkUrl,
+        onProgress: (p) => progress.value = p,
+      );
+      // El instalador de Android toma el control; cerramos el diálogo.
+      if (mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No se pudo actualizar: $e')));
+      }
     }
   }
 
