@@ -468,15 +468,21 @@ class _HistorialScreenState extends State<HistorialScreen> {
     final isFuture = d.isAfter(today);
     final isSelected = _selectedDay != null &&
         _key(_selectedDay!) == _key(d);
-    final has = byDate.containsKey(_key(d));
+    final recs = byDate[_key(d)];
+    final has = recs != null && recs.isNotEmpty;
     final isLectivo = (_weekly?.days.containsKey(d.weekday) ?? false);
     final missing = !has && !isFuture && d != today && isLectivo;
 
     Color? dot;
     if (has) {
-      dot = AppTheme.success;
+      final completo = recs.any((r) => r.isEntrada) &&
+          recs.any((r) => !r.isEntrada);
+      // Día a medias (solo una) → ámbar. Excepción: HOY con solo la entrada es
+      // lo normal (jornada en curso), no un fallo, así que se queda en verde.
+      dot = (completo || d == today) ? AppTheme.success : AppTheme.warning;
     } else if (missing) {
-      dot = AppTheme.warning;
+      // Lectivo y sin ningún fichaje → rojo (puede incluir festivos locales).
+      dot = AppTheme.error;
     }
 
     return GestureDetector(
@@ -522,23 +528,35 @@ class _HistorialScreenState extends State<HistorialScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [
-          _legendDot(AppTheme.success), const SizedBox(width: 6),
-          Text('Fichado',
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-          const SizedBox(width: 18),
-          _legendDot(AppTheme.warning), const SizedBox(width: 6),
-          Text('Lectivo sin fichar',
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-        ]),
+        Wrap(
+          spacing: 18,
+          runSpacing: 6,
+          children: [
+            _legendItem(AppTheme.success, 'Fichado'),
+            _legendItem(AppTheme.warning, 'Incompleto'),
+            _legendItem(AppTheme.error, 'Sin fichar'),
+          ],
+        ),
         const SizedBox(height: 6),
-        Text('Los días en ámbar pueden incluir festivos o no lectivos.',
+        Text(
+            'Incompleto = falta la entrada o la salida. '
+            'El rojo puede incluir festivos o no lectivos.',
             style: TextStyle(
                 color: AppTheme.textSecondary.withValues(alpha: 0.6),
                 fontSize: 11)),
       ],
     ),
   );
+
+  Widget _legendItem(Color c, String label) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _legendDot(c),
+          const SizedBox(width: 6),
+          Text(label,
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+        ],
+      );
 
   Widget _legendDot(Color c) => Container(
       width: 8, height: 8,
