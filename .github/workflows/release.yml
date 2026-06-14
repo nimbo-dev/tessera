@@ -56,8 +56,24 @@ jobs:
       - name: Renombrar el APK con la versión
         run: cp build/app/outputs/flutter-apk/app-release.apk "tessera-${{ github.ref_name }}.apk"
 
+      - name: Extraer notas del CHANGELOG
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Toma las líneas entre "## [VERSION]" y el siguiente "## [".
+          awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" {flag=1; next}
+            /^## \[/ {flag=0}
+            flag {print}
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          # Recorta líneas en blanco al principio/fin.
+          sed -i -e '/./,$!d' RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "Nueva versión de Tessera." > RELEASE_NOTES.md
+          fi
+          echo "---- notas de la release ----"; cat RELEASE_NOTES.md
+
       - name: Publicar la release con el APK
         uses: softprops/action-gh-release@v2
         with:
           files: tessera-${{ github.ref_name }}.apk
-          generate_release_notes: true
+          body_path: RELEASE_NOTES.md

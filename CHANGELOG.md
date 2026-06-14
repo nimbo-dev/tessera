@@ -6,6 +6,13 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.3.3]
+
+### Cambiado
+- Las notas de cada actualización muestran ahora los **cambios reales** de la
+  versión (extraídos del CHANGELOG) y se ven limpias en el diálogo, sin marcas
+  de markdown, en vez del enlace genérico "Full Changelog" de GitHub.
+
 ## [0.3.2]
 
 ### Cambiado

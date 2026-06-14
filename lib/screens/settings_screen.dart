@@ -178,16 +178,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  /// Limpia el markdown de las notas de la release (encabezados `#`, negritas
+  /// `**`, comillas de código) para que se lean bien en el diálogo de texto
+  /// plano. Las viñetas `-` se convierten en `•`.
+  String _cleanNotes(String raw) {
+    final out = <String>[];
+    for (var line in raw.trim().split('\n')) {
+      line = line.replaceAll('**', '').replaceAll('`', '');
+      line = line.replaceFirst(RegExp(r'^#{1,6}\s*'), '');
+      line = line.replaceFirst(RegExp(r'^\s*-\s+'), '• ');
+      out.add(line);
+    }
+    return out.join('\n').trim();
+  }
+
   /// Ofrece actualizar en el sitio (sin mandar al usuario a Inicio): muestra la
   /// versión y las novedades y, si acepta, descarga e instala con progreso.
   Future<void> _promptAndUpdate(UpdateInfo u) async {
+    final notes = _cleanNotes(u.notes);
     final go = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Versión ${u.version} disponible'),
-        content: u.notes.trim().isEmpty
-            ? const Text('Hay una nueva versión de Tessera.')
-            : SingleChildScrollView(child: Text(u.notes.trim())),
+        content: SingleChildScrollView(
+          child: Text(notes.isEmpty
+              ? 'Hay una nueva versión de Tessera.'
+              : notes),
+        ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
