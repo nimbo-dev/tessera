@@ -2,7 +2,7 @@ name: tessera_app
 description: Fichaje automático en Séneca para el profesorado de Andalucía.
 
 publish_to: 'none'
-version: 0.3.3+7
+version: 0.4.0+10
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -42,6 +42,9 @@ dependencies:
   package_info_plus: ^8.1.0   # versión instalada
   path_provider: ^2.1.4       # carpeta para descargar el APK
   open_filex: ^4.5.0          # lanza el instalador del APK
+  permission_handler: ^12.0.3
+  device_info_plus: ^12.4.0
+  android_intent_plus: ^6.0.0
 
 dev_dependencies:
   flutter_test:

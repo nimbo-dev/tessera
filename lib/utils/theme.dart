@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Modo de tema activo (claro/oscuro/automático). Lo escuchan el MaterialApp
 /// y el selector de Ajustes; se persiste en [StorageService].
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 /// Tema de Tessera con soporte claro/oscuro.
 ///
@@ -14,7 +14,7 @@ class AppTheme {
   AppTheme._();
 
   /// Luminosidad activa. La fija el builder de MaterialApp en cada frame.
-  static Brightness _b = Brightness.dark;
+  static Brightness _b = Brightness.light;
   static set brightness(Brightness b) => _b = b;
   static bool get isDark => _b == Brightness.dark;
 

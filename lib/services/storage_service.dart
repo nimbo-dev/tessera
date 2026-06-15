@@ -95,7 +95,7 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final s = prefs.getString(_kThemeMode);
     return ThemeMode.values.firstWhere((m) => m.name == s,
-        orElse: () => ThemeMode.dark);
+        orElse: () => ThemeMode.light);
   }
 
   // ── Horario semanal ───────────────────────────────────────────────────────

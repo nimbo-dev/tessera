@@ -6,6 +6,30 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.4.0]
+
+### Añadido
+- **Fiabilidad del fichaje automático.** La app ahora **pide los permisos** que
+  necesita para fichar en segundo plano, en vez de solo declararlos:
+  - Al activar el fichaje automático solicita **notificaciones** y **exención de
+    optimización de batería** (diálogos del sistema).
+  - **Guía por fabricante** (Xiaomi, Samsung, Huawei/Honor, Oppo/Realme,
+    OnePlus, Vivo): abre la pantalla de *Inicio automático* correspondiente y
+    avisa de desactivar *«Pausar la actividad si no se utiliza»* (hibernación de
+    apps), que en móviles agresivos hacía que los fichajes salieran tarde o se
+    perdieran.
+  - **Aviso en Inicio** si el fichaje automático está activo pero falta algún
+    permiso crítico, con botón **Arreglar**.
+
+### Cambiado
+- La app arranca en **tema claro por defecto** (también en el registro).
+
+### Arreglado
+- El mensaje de "Fichaje registrado a las…" del fichaje manual **se oculta solo**
+  a los pocos segundos (antes se quedaba fijo en pantalla).
+- "Últimos fichajes" **se actualiza** tras un fichaje manual (antes no reflejaba
+  el que acababas de registrar).
+
 ## [0.3.3]
 
 ### Cambiado

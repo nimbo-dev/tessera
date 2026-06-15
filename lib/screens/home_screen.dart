@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models/app_config.dart';
 import '../models/schedule_entry.dart';
 import '../models/weekly_schedule.dart';
+import '../services/reliability_service.dart';
 import '../services/schedule_service.dart';
 import '../services/seneca_api.dart';
 import '../services/storage_service.dart';
@@ -31,12 +34,14 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _fichando         = false;
   bool _scheduleExpanded = false;
   String? _lastFichajeMsg;
+  Timer? _fichajeMsgTimer;
   List<FichajeRecord>? _recentFichajes;
   bool _loadingFichajes = true;
   bool _fichajesError = false;
   UpdateInfo? _update;
   bool _downloading = false;
   double _dlProgress = 0;
+  ReliabilityStatus? _reliability;
 
   static const _weekdays = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves',
       'Viernes', 'Sábado', 'Domingo'];
@@ -46,6 +51,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _token = widget.accessToken;
     _init();
+  }
+
+  @override
+  void dispose() {
+    _fichajeMsgTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _init() async {
@@ -58,7 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
           WeeklySchedule(days: const {}, importedAt: DateTime.now()));
     }
     await _loadRecentFichajes();
+    await _refreshReliability();
     await _checkUpdate();
+  }
+
+  Future<void> _refreshReliability() async {
+    final r = await ReliabilityService.check();
+    if (mounted) setState(() => _reliability = r);
   }
 
   Future<void> _checkUpdate() async {
@@ -162,14 +179,89 @@ class _HomeScreenState extends State<HomeScreen> {
     if (value) {
       await ScheduleService.scheduleWeek(_weekly ??
           WeeklySchedule(days: const {}, importedAt: DateTime.now()));
+      // Al activar es cuando tiene sentido pedir los permisos que hacen que el
+      // fichaje en segundo plano funcione de verdad.
+      await _runReliabilityOnboarding();
     } else {
       await ScheduleService.cancelAll();
     }
+    await _refreshReliability();
   }
+
+  /// Pide los permisos críticos (notificaciones + exención de batería) y guía
+  /// los ajustes que no se pueden tocar por código (autostart, hibernación).
+  Future<void> _runReliabilityOnboarding() async {
+    await ReliabilityService.requestNotifications();
+    await ReliabilityService.requestBatteryExemption();
+    if (!mounted) return;
+    final family = await ReliabilityService.oemFamily();
+    if (!mounted) return;
+    await _showReliabilityGuide(family);
+    await _refreshReliability();
+  }
+
+  Future<void> _showReliabilityGuide(OemFamily family) async {
+    final guidance = ReliabilityService.guidanceText(family);
+    final autostartLabel = ReliabilityService.autostartLabel(family);
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Para que no falle ningún fichaje'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                  'Como Tessera ficha sin que abras la app, el sistema puede '
+                  'pausarla. Revisa estos ajustes:'),
+              const SizedBox(height: 12),
+              _guideItem('Desactiva «Pausar la actividad si no se utiliza» en '
+                  'la información de la app (si no, Android la pausa por no '
+                  'abrirla y se pierden fichajes).'),
+              if (guidance.isNotEmpty) _guideItem(guidance),
+            ],
+          ),
+        ),
+        actions: [
+          if (autostartLabel != null)
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                ReliabilityService.openAutostartSettings(family);
+              },
+              child: Text(autostartLabel),
+            ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ReliabilityService.openSettings();
+            },
+            child: const Text('Info de la app'),
+          ),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Hecho')),
+        ],
+      ),
+    );
+  }
+
+  Widget _guideItem(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('•  ', style: TextStyle(color: AppTheme.accent)),
+            Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
+          ],
+        ),
+      );
 
   /// Fichaje manual: un único "control de presencia". Séneca alterna
   /// entrada/salida según el estado; enviamos un tipo orientativo por la hora.
   Future<void> _fichar() async {
+    _fichajeMsgTimer?.cancel();
     setState(() { _fichando = true; _lastFichajeMsg = null; });
     try {
       final type = DateTime.now().hour < 14 ? 'E' : 'S';
@@ -179,11 +271,23 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       setState(() =>
           _lastFichajeMsg = 'Fichaje registrado a las ${_fmt(DateTime.now())}');
+      // Refresca "Últimos fichajes" con el que se acaba de registrar.
+      await _loadRecentFichajes();
     } on SenecaApiException catch (e) {
       setState(() => _lastFichajeMsg = 'Error: ${e.message}');
     } finally {
-      setState(() => _fichando = false);
+      if (mounted) setState(() => _fichando = false);
+      _scheduleClearFichajeMsg();
     }
+  }
+
+  /// Oculta el mensaje de feedback del fichaje manual a los pocos segundos
+  /// (antes se quedaba fijo en pantalla indefinidamente).
+  void _scheduleClearFichajeMsg() {
+    _fichajeMsgTimer?.cancel();
+    _fichajeMsgTimer = Timer(const Duration(seconds: 6), () {
+      if (mounted) setState(() => _lastFichajeMsg = null);
+    });
   }
 
   String _fmt(DateTime d) =>
@@ -206,6 +310,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 8),
                 if (_update != null) ...[
                   _buildUpdateBanner(),
+                  const SizedBox(height: 16),
+                ],
+                if ((_config?.autoFichajeEnabled ?? false) &&
+                    (_reliability?.hasIssues ?? false)) ...[
+                  _buildReliabilityBanner(),
                   const SizedBox(height: 16),
                 ],
                 _buildStatusCard(),
@@ -421,6 +530,47 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     ),
   ).animate().fadeIn(duration: 400.ms, delay: 200.ms).slideY(begin: 0.1, end: 0);
+
+  // ── Aviso de fiabilidad ───────────────────────────────────────────────────
+
+  Widget _buildReliabilityBanner() {
+    final r = _reliability!;
+    final faltan = <String>[
+      if (!r.notifications) 'notificaciones',
+      if (!r.batteryUnrestricted) 'batería sin restricción',
+    ].join(' · ');
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.warning.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, color: AppTheme.warning),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Los fichajes pueden fallar',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text('Falta permitir: $faltan',
+                    style: TextStyle(
+                        color: AppTheme.textSecondary, fontSize: 12)),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: _runReliabilityOnboarding,
+            child: Text('Arreglar', style: TextStyle(color: AppTheme.accent)),
+          ),
+        ],
+      ),
+    );
+  }
 
   // ── Últimos fichajes ──────────────────────────────────────────────────────
 
