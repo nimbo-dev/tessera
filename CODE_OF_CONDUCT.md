@@ -25,7 +25,7 @@ sexual.
 ## Aplicación
 
 Los casos de comportamiento abusivo o inaceptable pueden comunicarse en privado
-a **nimbo-dev@proton.me**. Todas las quejas se revisarán e investigarán, y se
+a **nimbo.dev@proton.me**. Todas las quejas se revisarán e investigarán, y se
 responderá de la forma que se considere apropiada.
 
 Este código de conducta es una adaptación del

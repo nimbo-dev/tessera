@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:android_intent_plus/android_intent.dart';
 import '../models/app_config.dart';
 import '../models/weekly_schedule.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -17,6 +19,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  // Canales de contacto con quien mantiene el proyecto.
+  static const _contactEmail = 'nimbo.dev@proton.me';
+  static const _issuesUrl = 'https://github.com/nimbo-dev/tessera/issues';
+
   AppConfig? _config;
   WeeklySchedule? _weekly;
   String? _username;
@@ -175,6 +181,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('No se pudo comprobar (¿sin conexión?).')));
+    }
+  }
+
+  /// Abre el cliente de correo con un mensaje prellenado al desarrollador.
+  /// Si el teléfono no tiene app de correo, copia la dirección al portapapeles.
+  Future<void> _contactEmailTap() async {
+    final subject = Uri.encodeComponent('Tessera v$_appVersion');
+    final body = Uri.encodeComponent(
+        'Hola:\n\n(Describe aquí tu duda, fallo o sugerencia.)\n\n'
+        '— Enviado desde Tessera v$_appVersion');
+    final mailto = 'mailto:$_contactEmail?subject=$subject&body=$body';
+    try {
+      await AndroidIntent(
+        action: 'android.intent.action.SENDTO',
+        data: mailto,
+      ).launch();
+    } catch (_) {
+      await Clipboard.setData(const ClipboardData(text: _contactEmail));
+      _snack('No se encontró app de correo. Dirección copiada: $_contactEmail',
+          AppTheme.textSecondary);
+    }
+  }
+
+  /// Abre los issues del proyecto en el navegador.
+  Future<void> _openIssues() async {
+    try {
+      await AndroidIntent(
+        action: 'android.intent.action.VIEW',
+        data: _issuesUrl,
+      ).launch();
+    } catch (_) {
+      await Clipboard.setData(const ClipboardData(text: _issuesUrl));
+      _snack('No se pudo abrir el navegador. Enlace copiado.',
+          AppTheme.textSecondary);
     }
   }
 
@@ -425,6 +465,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 20),
+                _buildSection('Contacto', [
+                  _buildActionRow(
+                    icon: Icons.mail_outline_rounded,
+                    iconColor: AppTheme.accent,
+                    label: 'Escribir al desarrollador',
+                    subtitle: 'Dudas, fallos o sugerencias por correo',
+                    onTap: _contactEmailTap,
+                  ),
+                  _buildDivider(),
+                  _buildActionRow(
+                    icon: Icons.bug_report_outlined,
+                    iconColor: AppTheme.textSecondary,
+                    label: 'Reportar en GitHub',
+                    subtitle: 'Si tienes cuenta de GitHub',
+                    onTap: _openIssues,
+                  ),
+                ]),
 
                 const SizedBox(height: 20),
                 _buildSection('Acerca de', [

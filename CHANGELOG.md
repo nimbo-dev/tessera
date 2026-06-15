@@ -6,6 +6,21 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.5.0]
+
+### Añadido
+- **Contacto desde la app.** Nueva sección **Ajustes → Contacto**:
+  - **Escribir al desarrollador**: abre el correo con un mensaje prellenado
+    (incluye tu versión). Si no tienes app de correo, copia la dirección.
+  - **Reportar en GitHub**: abre los *issues* del proyecto.
+- El README incluye una sección **Contacto y soporte** para quien no sepa abrir
+  un *issue* en GitHub.
+
+### Cambiado
+- **Nuevo icono de la app**, en su versión clara: el mosaico de teselas cian
+  sobre fondo claro (como el logo de la pantalla de registro), en lugar del
+  cuadrado oscuro. Hecho como icono adaptable (glifo + fondo de color).
+
 ## [0.4.0]
 
 ### Añadido

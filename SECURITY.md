@@ -4,7 +4,7 @@
 
 Si encuentras un problema de seguridad **no lo abras como issue público**. Usa
 los *GitHub Security Advisories* del repositorio (pestaña **Security → Report a
-vulnerability**) o escribe en privado a **nimbo-dev@proton.me**. Intentaremos
+vulnerability**) o escribe en privado a **nimbo.dev@proton.me**. Intentaremos
 responder lo antes posible.
 
 ## Manejo de credenciales

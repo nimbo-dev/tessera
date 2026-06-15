@@ -113,6 +113,16 @@ No. Son los avisos que Android y Play Protect muestran con **cualquier** app que
 
 ---
 
+## Contacto y soporte
+
+¿Una duda, un fallo o una idea? No hace falta saber de GitHub:
+
+- **Por correo (lo más fácil):** escribe a **[nimbo.dev@proton.me](mailto:nimbo.dev@proton.me)**. También desde la propia app: **Ajustes → Contacto → Escribir al desarrollador** (el correo se prepara solo con tu versión).
+- **En GitHub** (si tienes cuenta): abre un *issue* con las plantillas en **[Issues](https://github.com/nimbo-dev/tessera/issues)** (botón *New issue*) o desde **Ajustes → Contacto → Reportar en GitHub**.
+- **Seguridad:** si es una vulnerabilidad, **no** la publiques como issue; sigue [`SECURITY.md`](SECURITY.md).
+
+---
+
 ## Compilar desde el código fuente
 
 ### Requisitos
