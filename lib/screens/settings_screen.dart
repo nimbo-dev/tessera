@@ -7,7 +7,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../services/schedule_service.dart';
 import '../services/storage_service.dart';
 import '../services/update_service.dart';
+import '../utils/contact.dart';
 import '../utils/theme.dart';
+import 'diagnostic_screen.dart';
 import 'setup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -19,10 +21,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Canales de contacto con quien mantiene el proyecto.
-  static const _contactEmail = 'nimbo.dev@proton.me';
-  static const _issuesUrl = 'https://github.com/nimbo-dev/tessera/issues';
-
   AppConfig? _config;
   WeeklySchedule? _weekly;
   String? _username;
@@ -191,15 +189,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final body = Uri.encodeComponent(
         'Hola:\n\n(Describe aquí tu duda, fallo o sugerencia.)\n\n'
         '— Enviado desde Tessera v$_appVersion');
-    final mailto = 'mailto:$_contactEmail?subject=$subject&body=$body';
+    final mailto = 'mailto:$contactEmail?subject=$subject&body=$body';
     try {
       await AndroidIntent(
         action: 'android.intent.action.SENDTO',
         data: mailto,
       ).launch();
     } catch (_) {
-      await Clipboard.setData(const ClipboardData(text: _contactEmail));
-      _snack('No se encontró app de correo. Dirección copiada: $_contactEmail',
+      await Clipboard.setData(const ClipboardData(text: contactEmail));
+      _snack('No se encontró app de correo. Dirección copiada: $contactEmail',
           AppTheme.textSecondary);
     }
   }
@@ -209,10 +207,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       await AndroidIntent(
         action: 'android.intent.action.VIEW',
-        data: _issuesUrl,
+        data: issuesUrl,
       ).launch();
     } catch (_) {
-      await Clipboard.setData(const ClipboardData(text: _issuesUrl));
+      await Clipboard.setData(const ClipboardData(text: issuesUrl));
       _snack('No se pudo abrir el navegador. Enlace copiado.',
           AppTheme.textSecondary);
     }
@@ -482,6 +480,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Reportar en GitHub',
                     subtitle: 'Si tienes cuenta de GitHub',
                     onTap: _openIssues,
+                  ),
+                  _buildDivider(),
+                  _buildActionRow(
+                    icon: Icons.description_outlined,
+                    iconColor: AppTheme.textSecondary,
+                    label: 'Ver diagnóstico',
+                    subtitle: 'Registro de fichajes para enviar si algo falla',
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const DiagnosticScreen())),
                   ),
                 ]),
 

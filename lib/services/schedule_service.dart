@@ -6,6 +6,7 @@ import 'package:workmanager/workmanager.dart';
 
 import '../models/schedule_entry.dart';
 import '../models/weekly_schedule.dart';
+import 'diag_log.dart';
 import 'fichaje_service.dart';
 import 'seneca_api.dart';
 import 'storage_service.dart';
@@ -23,12 +24,14 @@ Future<void> prepAlarmCallback() async {
 @pragma('vm:entry-point')
 Future<void> fichajeEntradaCallback() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DiagLog.log('ALARMA entrada disparada');
   await FichajeService.ejecutarFichaje('E');
 }
 
 @pragma('vm:entry-point')
 Future<void> fichajeSalidaCallback() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DiagLog.log('ALARMA salida disparada');
   await FichajeService.ejecutarFichaje('S');
 }
 
@@ -83,6 +86,17 @@ class ScheduleService {
   static Future<void> scheduleWeek(WeeklySchedule schedule) async {
     final config = await StorageService.loadConfig();
     if (!config.autoFichajeEnabled) return;
+
+    // Red de seguridad: tarea periódica que recupera un fichaje perdido si la
+    // alarma exacta no llegó a dispararse (fabricantes que matan el proceso).
+    await Workmanager().registerPeriodicTask(
+      'tessera_safety',
+      'tessera_safety',
+      frequency: const Duration(hours: 1),
+      initialDelay: const Duration(minutes: 15),
+      constraints: Constraints(networkType: NetworkType.connected),
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
+    );
 
     final now = DateTime.now();
 
@@ -203,7 +217,10 @@ class ScheduleService {
     }
   }
 
-  static void _log(String msg) => debugPrint('Tessera/schedule: $msg');
+  static void _log(String msg) {
+    debugPrint('Tessera/schedule: $msg');
+    DiagLog.log('schedule: $msg');
+  }
 
   static final _rng = Random();
 
@@ -238,7 +255,11 @@ class ScheduleService {
         prepAlarmCallback,
         exact: true,
         wakeup: true,
-        allowWhileIdle: true, // imprescindible para que dispare en modo Doze
+        // setAlarmClock: único tipo que MIUI/Doze no pueden agrupar ni demorar
+        // con la pantalla apagada (probado: setExactAndAllowWhileIdle llegaba
+        // hasta minutos/horas tarde). Imprescindible para fichar a la hora.
+        alarmClock: true,
+        allowWhileIdle: true,
         rescheduleOnReboot: true,
       );
     } catch (_) {
@@ -262,7 +283,9 @@ class ScheduleService {
       await AndroidAlarmManager.oneShotAt(
         when, id, callback,
         exact: true, wakeup: true,
-        allowWhileIdle: true, // dispara a la hora exacta aunque esté en Doze
+        alarmClock: true, // MIUI/Doze no pueden demorarla (ver _schedulePrep)
+        allowWhileIdle: true,
+        rescheduleOnReboot: true, // sobrevive a un reinicio entre mañana y tarde
       );
     } catch (_) {
       // Fallback WorkManager

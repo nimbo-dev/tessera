@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'services/diag_log.dart';
 import 'services/fichaje_service.dart';
 import 'services/seneca_api.dart';
 import 'services/storage_service.dart';
@@ -18,6 +19,7 @@ void main() async {
 
   await initializeDateFormatting('es', null);
   await FichajeService.init();
+  await DiagLog.log('app: arranque');
 
   themeNotifier.value = await StorageService.loadThemeMode();
 

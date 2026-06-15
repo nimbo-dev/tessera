@@ -6,6 +6,26 @@ Todas las versiones notables se documentan aquí. El formato sigue
 
 ## [No publicado]
 
+## [0.6.0]
+
+### Arreglado
+- **El fichaje de salida ya no llega tarde ni se pierde.** En móviles con capas
+  agresivas (Xiaomi/MIUI y similares), el sistema "aparcaba" la alarma con la
+  pantalla apagada y la salida salía con minutos —u horas— de retraso (o se
+  descuadraba el historial). Ahora las alarmas usan el mecanismo de
+  **despertador del sistema** (`setAlarmClock`), que ni Doze ni el ahorro de
+  batería pueden demorar: el fichaje sale a su hora aunque el móvil lleve horas
+  en reposo. *(Verificado: 0 s de retraso, antes 3 min en la misma prueba.)*
+
+### Añadido
+- **Red de seguridad**: una comprobación periódica recupera la entrada o la
+  salida del día si, por lo que sea, la alarma no llegó a registrarlas (mirando
+  antes en Séneca para no duplicar).
+- **Diagnóstico** (Ajustes → Contacto → «Ver diagnóstico»): un registro de la
+  actividad de fichaje que puedes **enviar al desarrollador con un toque** si
+  algo falla. No incluye tu contraseña ni datos personales.
+- Las alarmas del día **sobreviven a un reinicio** del teléfono.
+
 ## [0.5.0]
 
 ### Añadido

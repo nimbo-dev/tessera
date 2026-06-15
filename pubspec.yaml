@@ -2,7 +2,7 @@ name: tessera_app
 description: Fichaje automático en Séneca para el profesorado de Andalucía.
 
 publish_to: 'none'
-version: 0.5.0+11
+version: 0.6.0+12
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
