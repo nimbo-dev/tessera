@@ -13,16 +13,18 @@
 <meta property="og:locale" content="es_ES" />
 
 <!-- Favicon: la tesela en T, dibujada en SVG -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A0E1A'/%3E%3Cg fill='%2300B4D8'%3E%3Crect x='18' y='18' width='14' height='14' rx='4'/%3E%3Crect x='36' y='18' width='14' height='14' rx='4'/%3E%3Crect x='54' y='18' width='14' height='14' rx='4'/%3E%3Crect x='72' y='18' width='14' height='14' rx='4'/%3E%3Crect x='36' y='36' width='14' height='14' rx='4'/%3E%3Crect x='54' y='36' width='14' height='14' rx='4'/%3E%3Crect x='36' y='54' width='14' height='14' rx='4'/%3E%3Crect x='54' y='54' width='14' height='14' rx='4'/%3E%3Crect x='36' y='72' width='14' height='14' rx='4'/%3E%3Crect x='54' y='72' width='14' height='14' rx='4'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23E9EDF3'/%3E%3Cg fill='%230E7C93'%3E%3Crect x='18' y='18' width='14' height='14' rx='4'/%3E%3Crect x='36' y='18' width='14' height='14' rx='4'/%3E%3Crect x='54' y='18' width='14' height='14' rx='4'/%3E%3Crect x='72' y='18' width='14' height='14' rx='4'/%3E%3Crect x='36' y='36' width='14' height='14' rx='4'/%3E%3Crect x='54' y='36' width='14' height='14' rx='4'/%3E%3Crect x='36' y='54' width='14' height='14' rx='4'/%3E%3Crect x='54' y='54' width='14' height='14' rx='4'/%3E%3Crect x='36' y='72' width='14' height='14' rx='4'/%3E%3Crect x='54' y='72' width='14' height='14' rx='4'/%3E%3C/g%3E%3C/svg%3E" />
 
 <style>
   :root {
-    --bg: #0E1015;
-    --surface: #181B22;
-    --accent: #00B4D8;
-    --text: #ECEDEF;
-    --muted: #9AA1AC;
-    --hairline: rgba(255,255,255,0.08);
+    --bg: #E9EDF3;
+    --surface: #FFFFFF;
+    --accent: #0E7C93;
+    --accent-soft: rgba(14,124,147,0.12);
+    --text: #1B1F27;
+    --muted: #6B7280;
+    --hairline: rgba(0,0,0,0.08);
+    --shadow: 0 6px 18px rgba(0,0,0,0.06);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -51,7 +53,7 @@
   .glyph span {
     aspect-ratio: 1;
     border-radius: 7px;
-    background: rgba(0,180,216,0.12);
+    background: var(--accent-soft);
   }
   .glyph span.on { background: var(--accent); }
   h1 {
@@ -83,7 +85,7 @@
     transition: transform .08s ease, opacity .2s ease;
   }
   .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--accent); color: #04121a; }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow); }
   .btn-primary:hover { opacity: 0.92; }
   .btn-ghost {
     color: var(--text);
@@ -134,6 +136,7 @@
     border-radius: 14px;
     padding: 22px 24px;
     margin-top: 22px;
+    box-shadow: var(--shadow);
   }
   .note strong { color: var(--text); }
   a.inline { color: var(--accent); text-decoration: none; }
@@ -202,9 +205,6 @@
     <p class="eyebrow">Empezar</p>
     <h2>En tres pasos</h2>
     <p>1 · Descarga e instala el APK. &nbsp; 2 · Conecta tu cuenta de Séneca (usuario, contraseña y un único SMS). &nbsp; 3 · Activa el fichaje automático y olvídate.</p>
-    <div class="cta" style="justify-content:flex-start">
-      <a class="btn btn-primary" href="https://github.com/nimbo-dev/tessera/releases/latest">Descargar la última versión</a>
-    </div>
   </div>
 </section>
 
