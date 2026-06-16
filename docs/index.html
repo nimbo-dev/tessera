@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tessera — Fichaje automático en Séneca</title>
+<meta name="description" content="Tessera automatiza el control de presencia en Séneca para el profesorado andaluz. Registra tu entrada y salida cada día lectivo, con la app cerrada." />
+
+<!-- Open Graph (vista previa al compartir el enlace) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Tessera — Fichaje automático en Séneca" />
+<meta property="og:description" content="Registra tu entrada y salida en Séneca cada día lectivo, automáticamente y con la app cerrada. Para el profesorado de Andalucía." />
+<meta property="og:locale" content="es_ES" />
+
+<!-- Favicon: la tesela en T, dibujada en SVG -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A0E1A'/%3E%3Cg fill='%2300B4D8'%3E%3Crect x='18' y='18' width='14' height='14' rx='4'/%3E%3Crect x='36' y='18' width='14' height='14' rx='4'/%3E%3Crect x='54' y='18' width='14' height='14' rx='4'/%3E%3Crect x='72' y='18' width='14' height='14' rx='4'/%3E%3Crect x='36' y='36' width='14' height='14' rx='4'/%3E%3Crect x='54' y='36' width='14' height='14' rx='4'/%3E%3Crect x='36' y='54' width='14' height='14' rx='4'/%3E%3Crect x='54' y='54' width='14' height='14' rx='4'/%3E%3Crect x='36' y='72' width='14' height='14' rx='4'/%3E%3Crect x='54' y='72' width='14' height='14' rx='4'/%3E%3C/g%3E%3C/svg%3E" />
+
+<style>
+  :root {
+    --bg: #0E1015;
+    --surface: #181B22;
+    --accent: #00B4D8;
+    --text: #ECEDEF;
+    --muted: #9AA1AC;
+    --hairline: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Hero ────────────────────────────────────────────── */
+  header {
+    text-align: center;
+    padding: 88px 0 64px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .glyph {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 132px;
+    margin: 0 auto 36px;
+  }
+  .glyph span {
+    aspect-ratio: 1;
+    border-radius: 7px;
+    background: rgba(0,180,216,0.12);
+  }
+  .glyph span.on { background: var(--accent); }
+  h1 {
+    font-size: clamp(2.4rem, 9vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    margin-left: 0.18em; /* compensa el tracking para centrar óptico */
+  }
+  .tagline {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 440px;
+    margin: 18px auto 0;
+  }
+  .cta {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: transform .08s ease, opacity .2s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: #04121a; }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-ghost {
+    color: var(--text);
+    border: 1px solid var(--hairline);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .platform {
+    margin-top: 18px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Secciones ───────────────────────────────────────── */
+  section { padding: 64px 0; border-bottom: 1px solid var(--hairline); }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 22px;
+  }
+  section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  section p { color: var(--muted); }
+  section p + p { margin-top: 14px; }
+
+  .features { list-style: none; display: grid; gap: 2px; margin-top: 8px; }
+  .features li {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .features li:last-child { border-bottom: none; }
+  .features .k { color: var(--text); font-weight: 600; min-width: 0; }
+  .features .v { color: var(--muted); }
+
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-top: 22px;
+  }
+  .note strong { color: var(--text); }
+  a.inline { color: var(--accent); text-decoration: none; }
+  a.inline:hover { text-decoration: underline; }
+
+  footer {
+    padding: 48px 0 72px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--hairline); }
+  footer a:hover { color: var(--accent); }
+  footer .disclaimer { margin-top: 18px; font-size: 0.78rem; opacity: 0.8; max-width: 520px; margin-left: auto; margin-right: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <!-- Mosaico de teselas en "T" -->
+    <div class="glyph" aria-hidden="true">
+      <span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span>
+      <span></span><span class="on"></span><span class="on"></span><span></span>
+      <span></span><span class="on"></span><span class="on"></span><span></span>
+      <span></span><span class="on"></span><span class="on"></span><span></span>
+    </div>
+    <h1>TESSERA</h1>
+    <p class="tagline">Fichaje automático en Séneca para el profesorado andaluz. Registra tu entrada y salida cada día lectivo, con la app cerrada.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/nimbo-dev/tessera/releases/latest">Descargar</a>
+      <a class="btn btn-ghost" href="https://github.com/nimbo-dev/tessera">Ver el código</a>
+    </div>
+    <p class="platform">Android 7+ · Gratis y de código abierto</p>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Qué hace</p>
+    <h2>Fichas sin pensar en ello</h2>
+    <p>Conectas tu cuenta de Séneca una sola vez. A partir de ahí, Tessera consulta tu horario cada día lectivo y registra la entrada y la salida a su hora —aunque tengas el móvil guardado y la app cerrada—. Te llega una notificación cada vez que ficha.</p>
+    <ul class="features">
+      <li><span class="k">Automático</span><span class="v">Entrada y salida según tu horario real de Séneca.</span></li>
+      <li><span class="k">Natural</span><span class="v">Cada día ficha a una hora ligeramente distinta, no siempre la misma.</span></li>
+      <li><span class="k">Sin abrir la app</span><span class="v">Funciona en segundo plano, también fuera del centro (FP Dual).</span></li>
+      <li><span class="k">Historial</span><span class="v">Tus fichajes en lista y en calendario.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Privacidad</p>
+    <h2>Tus datos no salen de tu móvil</h2>
+    <p>Tu usuario y tu contraseña se guardan <strong style="color:var(--text)">cifrados en el propio teléfono</strong> y solo viajan a Séneca, igual que la app oficial. No hay servidores de terceros ni analítica.</p>
+    <p>El código es <strong style="color:var(--text)">público y abierto</strong>, y cada versión se compila de forma automática y firmada en GitHub: cualquiera puede verificar qué hace.</p>
+    <div class="note">
+      <p><strong>Al instalar verás avisos de seguridad. Es normal.</strong> Como Tessera no se descarga de Google Play, Android te avisará («fuente desconocida», Play Protect, Xiaomi…). No significa que sea peligrosa: pulsa <em>Instalar de todos modos</em>. Tienes el paso a paso por marca en las <a class="inline" href="https://github.com/nimbo-dev/tessera#instalación">instrucciones de instalación</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Empezar</p>
+    <h2>En tres pasos</h2>
+    <p>1 · Descarga e instala el APK. &nbsp; 2 · Conecta tu cuenta de Séneca (usuario, contraseña y un único SMS). &nbsp; 3 · Activa el fichaje automático y olvídate.</p>
+    <div class="cta" style="justify-content:flex-start">
+      <a class="btn btn-primary" href="https://github.com/nimbo-dev/tessera/releases/latest">Descargar la última versión</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><a href="https://github.com/nimbo-dev/tessera">GitHub</a> &nbsp;·&nbsp; <a href="https://github.com/nimbo-dev/tessera/releases">Versiones</a> &nbsp;·&nbsp; Licencia MIT</p>
+    <p class="disclaimer">Proyecto independiente, sin afiliación con la Junta de Andalucía ni con Séneca. Úsalo de forma responsable y conforme a tus obligaciones laborales.</p>
+  </div>
+</footer>
+
+</body>
+</html>
